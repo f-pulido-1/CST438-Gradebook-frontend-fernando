@@ -1,6 +1,6 @@
 import React, {useState, useEffect}  from 'react';
 import {SERVER_URL} from '../constants';
-
+import { Link } from 'react-router-dom';
 
 //  required properties -  assignmentId
 //  
@@ -60,6 +60,7 @@ function GradeAssignment ( ) {
     
 
     const onChangeInput = (e, row_id) => {
+      console.log("onChangeInput called.");
       setMessage('');
       console.log("onChangeInput "+row_id);
       // grade value must be digts only. 
@@ -77,6 +78,7 @@ function GradeAssignment ( ) {
 
     return (
       <div>
+        {<Link to={`/`} > Return to list view </Link>}
         <h3>Assignment Grades</h3>
         <div margin="auto" >
           <h4 id="gmessage" >{message}&nbsp;</h4>

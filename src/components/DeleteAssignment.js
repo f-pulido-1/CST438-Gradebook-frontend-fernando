@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { SERVER_URL } from '../constants';
 import { Link } from 'react-router-dom';
 
-function EditAssignment(props) {
-    console.log("EditAssignment function started...");
+function DeleteAssignment(props) {
+    console.log("DeleteAssignment function started...");
+
     const [assignments, setAssignments] = useState([]);
     let assignmentId = 0;
     const [message, setMessage] = useState('');
 
-    // sets assignmentId to Id retreived from list view
+    // sets assignmentId to Id retrieved from list view
     const path = window.location.pathname;
     const s = /\d+$/.exec(path)[0];
     assignmentId = s;
@@ -20,8 +21,6 @@ function EditAssignment(props) {
     const fetchAssignments = () => {
         setMessage('');
         console.log("fetchAssignments for ID: " + assignmentId);
-
-        // gets assignments
         fetch(`${SERVER_URL}/assignment/${assignmentId}`)
             .then((response) => response.json())
             .then((data) => { setAssignments(data) })
@@ -31,50 +30,37 @@ function EditAssignment(props) {
             });
     }
 
-    const onChangeInput = (e) => {
-        console.log("onChangeInput function started...");
+    const deleteAssignment = () => {
         setMessage('');
+        console.log("Assignment.delete ");
 
-        // for input change
-        setAssignments((prevAssignments) => ({
-            ...prevAssignments,
-            [e.target.name]: e.target.value
-        }));
-    }
-
-    const updateAssignment = () => {
-        console.log("Updating assignment...")
-        setMessage('');
-        console.log("Assignment.update ");
-
-        // updates assignment in database using PUT method
+        // Deletes assignment from database using DELETE method
         fetch(`${SERVER_URL}/assignment/${assignmentId}`,
             {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', },
-                body: JSON.stringify(assignments)
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', }
             })
             .then(res => {
                 if (res.ok) {
                     fetchAssignments();
-                    setMessage("Assignment updated.");
+                    setMessage("Assignment deleted. You may return to list view.");
                 } else {
-                    setMessage("Update error. " + res.status);
-                    console.error('Update assignment error =' + res.status);
+                    setMessage("Delete error. " + res.status + ". Assignment may have existing grades.");
+                    console.error('delete assignment error =' + res.status);
                 }
             })
             .catch(err => {
                 setMessage("Exception. " + err);
-                console.error('Update assignment exception =' + err);
+                console.error('delete assignment exception =' + err);
             });
     };
 
-    const headers = ['Assignment Name', 'Course Title', 'Due Date'];
+    const headers = ['Assignment Name', 'Due Date', 'courseID'];
 
     return (
         <div>
             {<Link to={`/`} > Return to list view </Link>}
-            <h3>Edit Assignments</h3>
+            <h3>Delete Assignments</h3>
             <div margin="auto" >
                 <h4>{message}&nbsp;</h4>
                 <table className="Center">
@@ -86,27 +72,21 @@ function EditAssignment(props) {
                     <tbody>
                         <tr>
                             <td>
-                                <input name="assignmentName"
-                                    value={(assignments.assignmentName) ? assignments.assignmentName : ""}
-                                    type="text"
-                                    onChange={(e) => onChangeInput(e)} />
+                                {assignments.assignmentName}
                             </td>
                             <td>
-                                {assignments.courseTitle}
+                                {assignments.dueDate}
                             </td>
                             <td>
-                                <input name="dueDate"
-                                    value={(assignments.dueDate) ? assignments.dueDate : ""}
-                                    type="text"
-                                    onChange={(e) => onChangeInput(e)} />
+                                {assignments.courseId}
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <button id="uassignment" type="button" margin="auto" onClick={updateAssignment}>Update Assignment</button>
+                <button id="dassignment" type="button" margin="auto" onClick={deleteAssignment}>Delete Assignment</button>
             </div>
         </div>
     );
 }
 
-export default EditAssignment;
+export default DeleteAssignment;
