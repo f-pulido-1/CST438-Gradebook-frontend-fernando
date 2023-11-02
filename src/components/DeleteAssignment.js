@@ -21,14 +21,28 @@ function DeleteAssignment(props) {
     const fetchAssignments = () => {
         setMessage('');
         console.log("fetchAssignments for ID: " + assignmentId);
-        fetch(`${SERVER_URL}/assignment/${assignmentId}`)
-            .then((response) => response.json())
-            .then((data) => { setAssignments(data) })
-            .catch(err => {
-                setMessage("Exception. " + err);
-                console.error("fetch assignments error " + err);
+
+        // gets assignment
+        fetch(`${SERVER_URL}/assignment/${assignmentId}`, {
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`,
+                'Content-Type': 'application/json',
+            },
+        })        
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                // deleteAssignment(data);
+            })
+            .catch((error) => {
+                console.error("Error fetching assignment:", error);
             });
-    }
+    };
 
     const deleteAssignment = () => {
         setMessage('');
@@ -38,7 +52,10 @@ function DeleteAssignment(props) {
         fetch(`${SERVER_URL}/assignment/${assignmentId}`,
             {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json', }
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem("jwt")}` 
+                },
             })
             .then(res => {
                 if (res.ok) {

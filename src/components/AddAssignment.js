@@ -21,11 +21,13 @@ function AddAssignment(props) {
         // gets assignments
         fetch(`${SERVER_URL}/assignment/${assignmentId}`)
             .then((response) => response.json())
-            .then((data) => { setAssignments(Array.isArray(data) ? data : [data]) })
-            .catch(err => {
-                setMessage("Exception. " + err);
-                console.error("fetch assignments error " + err);
-            });
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            
     }
 
     const onChangeInput = (e) => {
@@ -42,29 +44,32 @@ function AddAssignment(props) {
     const saveAssignment = () => {
         console.log("Saving assignment...");
         setMessage('');
-        console.log("Assignment.save ");
-
+    
         // saves assignment to database using POST method
-        fetch(`${SERVER_URL}/assignment/`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', },
-                body: JSON.stringify(assignments)
-            })
-            .then(res => {
-                if (res.ok) {
-                    fetchAssignments();
-                    setMessage("Assignment added.");
-                } else {
-                    setMessage("Save error. " + res.status);
-                    console.error('Save assignment error =' + res.status);
-                }
-            })
-            .catch(err => {
-                setMessage("Exception. " + err);
-                console.error('Save assignment exception =' + err);
-            });
-    };
+        fetch(`${SERVER_URL}/assignment/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`
+            },
+            body: JSON.stringify(assignments)
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Assignment added successfully:', data);
+            fetchAssignments();
+            setMessage("Assignment added.");
+        })
+        .catch(err => {
+            setMessage(`Save error: ${err.message}`);
+            console.error('Save assignment error:', err);
+        });
+    };    
 
     const headers = ['Assignment Name', 'Due Date', 'courseID'];
 
@@ -83,17 +88,17 @@ function AddAssignment(props) {
                     <tbody>
                         <tr>
                             <td>
-                                <input name="assignmentName"
+                                <input name="assignmentName" id="assignmentName"
                                     type="text"
                                     onChange={(e) => onChangeInput(e)} />
                             </td>
                             <td>
-                                <input name="dueDate"
+                                <input name="dueDate" id="dueDate"
                                     type="text"
                                     onChange={(e) => onChangeInput(e)} />
                             </td>
                             <td>
-                                <input name="courseId"
+                                <input name="courseId" id="courseId"
                                     type="text"
                                     onChange={(e) => onChangeInput(e)} />
                             </td>

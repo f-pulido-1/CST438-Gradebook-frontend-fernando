@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 
 function ListAssignment(props) {
+    // console.log("User logged in: " + user);
 
     const [assignments, setAssignments] = useState([]);
     const [message, setMessage] = useState('');
@@ -15,14 +16,22 @@ function ListAssignment(props) {
 
     const fetchAssignments = () => {
         console.log("fetchAssignments");
-        fetch(`${SERVER_URL}/assignment`)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("assignment length " + data.length);
-                setAssignments(data);
-            })
-            .catch(err => console.error(err));
+        const jwtToken = sessionStorage.getItem("jwt");
+        
+        fetch(`${SERVER_URL}/assignment`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log("assignment length " + data.length);
+            setAssignments(data);
+        })
+        .catch(err => console.error(err));
     }
+    
 
     const headers = ['Assignment Name', 'Course Title', 'Due Date', ' ', ' ', ' '];
 

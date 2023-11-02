@@ -24,7 +24,12 @@ function GradeAssignment ( ) {
   const fetchGrades = ( ) => {
       setMessage('');
       console.log("fetchGrades "+assignmentId);
-      fetch(`${SERVER_URL}/gradebook/${assignmentId}`)
+      fetch(`${SERVER_URL}/gradebook/${assignmentId}`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`,
+            'Content-Type': 'application/json',
+        },
+    })   
       .then((response) => response.json()) 
       .then((data) => { setGrades(data) })        
       .catch(err => { 
@@ -41,7 +46,10 @@ function GradeAssignment ( ) {
       fetch(`${SERVER_URL}/gradebook/${assignmentId}` , 
           {  
             method: 'PUT', 
-            headers: { 'Content-Type': 'application/json', }, 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`,
+            }, 
             body: JSON.stringify( grades )
           } )
       .then(res => {
