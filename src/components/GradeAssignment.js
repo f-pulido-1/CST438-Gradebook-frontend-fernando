@@ -1,6 +1,6 @@
 import React, {useState, useEffect}  from 'react';
 import {SERVER_URL} from '../constants';
-
+import { Link } from 'react-router-dom';
 
 //  required properties -  assignmentId
 //  
@@ -24,7 +24,12 @@ function GradeAssignment ( ) {
   const fetchGrades = ( ) => {
       setMessage('');
       console.log("fetchGrades "+assignmentId);
-      fetch(`${SERVER_URL}/gradebook/${assignmentId}`)
+      fetch(`${SERVER_URL}/gradebook/${assignmentId}`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`,
+            'Content-Type': 'application/json',
+        },
+    })   
       .then((response) => response.json()) 
       .then((data) => { setGrades(data) })        
       .catch(err => { 
@@ -41,7 +46,10 @@ function GradeAssignment ( ) {
       fetch(`${SERVER_URL}/gradebook/${assignmentId}` , 
           {  
             method: 'PUT', 
-            headers: { 'Content-Type': 'application/json', }, 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem("jwt")}`,
+            }, 
             body: JSON.stringify( grades )
           } )
       .then(res => {
@@ -60,6 +68,7 @@ function GradeAssignment ( ) {
     
 
     const onChangeInput = (e, row_id) => {
+      console.log("onChangeInput called.");
       setMessage('');
       console.log("onChangeInput "+row_id);
       // grade value must be digts only. 
@@ -77,6 +86,7 @@ function GradeAssignment ( ) {
 
     return (
       <div>
+        {<Link to={`/`} > Return to list view </Link>}
         <h3>Assignment Grades</h3>
         <div margin="auto" >
           <h4 id="gmessage" >{message}&nbsp;</h4>
